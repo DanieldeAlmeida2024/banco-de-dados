@@ -1,0 +1,29 @@
+@startuml
+class Pessoa {
+  +id: Integer
+  +nome: Text
+  +email: Text
+}
+class ServicoPessoas {
+  +cadastrar(nome,email): int
+  +listar(): list
+  +consultar(id): dict?
+  +atualizar(id,nome,email): bool
+  +excluir(id): bool
+  -_validar(nome,email)
+}
+class RepositorioPessoas {
+  +preparar()
+  +cadastrar(nome,email)
+  +consultar(id)
+  +listar()
+  +atualizar(id,nome,email)
+  +excluir(id)
+}
+ServicoPessoas --> RepositorioPessoas
+RepositorioPessoas --> Pessoa : row SQLite
+note right of Pessoa
+email UNIQUE no SQLite
+nome não vazio CHECK
+end note
+@enduml

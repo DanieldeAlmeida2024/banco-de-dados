@@ -1,25 +1,15 @@
 @startuml
-skinparam classAttributeIconSize 0
-class ServicoPessoas {
-  +cadastrar(nome, email)
-  +listar()
-  +consultar(id)
-  +atualizar(id, nome, email)
-  +excluir(id)
-}
-class RepositorioPessoas {
-  +preparar()
-  +cadastrar(nome, email)
-  +listar()
-  +consultar(id)
-  +atualizar(id, nome, email)
-  +excluir(id)
-}
-class Pessoa {
-  +id: inteiro
-  +nome: texto
-  +email: texto
-}
-ServicoPessoas --> RepositorioPessoas
-RepositorioPessoas ..> Pessoa
+actor Usuario
+component "CLI\nprincipal.py" as CLI
+component "ServicoPessoas\naplicacao/servico.py" as SVC
+component "RepositorioPessoas\naplicacao/repositorio.py" as REP
+database "SQLite\npessoas" as DB
+Usuario --> CLI
+CLI --> SVC : comando / parametros
+SVC --> REP : CRUD validado
+REP --> DB : SQL parametrizado
+DB --> REP : sqlite3.Row / rowcount
+REP --> SVC : dados / bool
+SVC --> CLI : resposta
+CLI --> Usuario : JSON ou erro
 @enduml

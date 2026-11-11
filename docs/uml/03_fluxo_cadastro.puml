@@ -1,0 +1,24 @@
+@startuml
+actor Usuario
+participant principal
+participant ServicoPessoas
+participant RepositorioPessoas
+database SQLite
+Usuario -> principal : cadastrar --nome --email
+principal -> ServicoPessoas : cadastrar(nome,email)
+ServicoPessoas -> ServicoPessoas : strip / lower / limites
+alt entrada invalida
+  ServicoPessoas --> principal : ErroValidacao
+  principal --> Usuario : argparse.error
+else valida
+  ServicoPessoas -> RepositorioPessoas : cadastrar()
+  RepositorioPessoas -> SQLite : INSERT ?, ?
+  alt email UNIQUE
+    SQLite --> RepositorioPessoas : IntegrityError
+    ServicoPessoas --> principal : ErroValidacao
+  else registro criado
+    SQLite --> RepositorioPessoas : lastrowid
+    principal --> Usuario : {"id": ...}
+  end
+end
+@enduml
