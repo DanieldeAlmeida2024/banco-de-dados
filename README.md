@@ -37,3 +37,10 @@ python -m unittest discover -s tests -v
 - `AGENTS.md`: regras para assistentes de código.
 
 **Estado:** laboratório de uso local. Não oferece autenticação, criptografia do arquivo, API HTTP nem controle de acesso multiusuário.
+
+## Documentação técnica v1.0.0
+
+- [Especificação de projeto](docs/projeto/ESPECIFICACAO.md)
+- [Diagramas UML específicos](docs/uml/README.md)
+- [Plano de testes](docs/testes/PLANO_DE_TESTES.md)
+- [Controle de versões](docs/controle/VERSIONAMENTO.md)
