@@ -33,3 +33,12 @@ python -m compileall -q principal.py aplicacao tests
 
 ## Critério de aceite
 Os quatro testes existentes devem passar; para evolução funcional, acrescentar testes dos limites e da persistência entre execuções. Não considerar validação simples de e-mail como verificação de propriedade do endereço. Evidência precisa registrar commit, comando e retorno da suíte.
+
+## DB-T12–15 — regressões integradas (14/11/2026)
+
+- DB-T12: impedir exclusão/edição do ID 1 com booleano `True` ou identificadores zero/negativos/não inteiros.
+- DB-T13: nome/e-mail não textuais retornam `ErroValidacao`.
+- DB-T14: conexão SQLite de arquivo é fechada após commit/rollback, inclusive exceção.
+- DB-T15: SQLite em memória mantém dados entre operações da mesma instância até `fechar()`.
+
+Executáveis em `tests/test_db_safety.py`. O escopo não inclui teste de concorrência multi-processo ou operação de produção.
