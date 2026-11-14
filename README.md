@@ -44,3 +44,7 @@ python -m unittest discover -s tests -v
 - [Diagramas UML específicos](docs/uml/README.md)
 - [Plano de testes](docs/testes/PLANO_DE_TESTES.md)
 - [Controle de versões](docs/controle/VERSIONAMENTO.md)
+
+## Validação comportamental de e-mail (13/11/2026)
+
+O serviço agora rejeita formas malformadas como dois arrobas, espaços, domínio sem ponto, labels de domínio inválidos e sequência `..`. A normalização para minúsculas e a restrição de unicidade SQLite permanecem. O laboratório valida **formato básico**, não a existência de caixa postal nem entregabilidade. Rode `python -m unittest discover -s tests -v`; o workflow de PR executa a mesma suíte.
