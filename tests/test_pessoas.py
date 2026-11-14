@@ -31,3 +31,17 @@ class TestesPessoas(unittest.TestCase):
 
     def test_nome_invalido(self):
         with self.assertRaises(ErroValidacao): self.servico.cadastrar(' ', 'email@exemplo.com')
+
+    def test_emails_malformados_sao_rejeitados(self):
+        for email in ('a@@exemplo.com', 'usuario@', 'usuario exemplo@dominio.com',
+                      'x@dominio', '.x@exemplo.com', 'x..y@exemplo.com',
+                      'x@-exemplo.com', 'x@exemplo..com'):
+            with self.subTest(email=email):
+                with self.assertRaises(ErroValidacao):
+                    self.servico.cadastrar('Pessoa Teste', email)
+
+    def test_email_e_normalizado_e_indice_unico_o_bloqueia(self):
+        codigo = self.servico.cadastrar('Pessoa Teste', '  TESTE@EXEMPLO.COM  ')
+        self.assertEqual('teste@exemplo.com', self.servico.consultar(codigo)['email'])
+        with self.assertRaises(ErroValidacao):
+            self.servico.cadastrar('Outra Pessoa', 'teste@exemplo.com')
