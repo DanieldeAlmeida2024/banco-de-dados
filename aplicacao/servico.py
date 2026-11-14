@@ -12,7 +12,15 @@ class ServicoPessoas:
         self.repositorio.preparar()
 
     @staticmethod
+    def _validar_id(identificador):
+        if type(identificador) is not int or identificador <= 0:
+            raise ErroValidacao('Identificador deve ser um inteiro positivo.')
+        return identificador
+
+    @staticmethod
     def _validar(nome, email):
+        if not isinstance(nome, str) or not isinstance(email, str):
+            raise ErroValidacao('Nome e email devem ser textos.')
         nome, email = nome.strip(), email.strip().lower()
         if not 2 <= len(nome) <= 120:
             raise ErroValidacao('O nome deve ter entre 2 e 120 caracteres.')
@@ -30,6 +38,7 @@ class ServicoPessoas:
             raise ErroValidacao('Email ja cadastrado.') from erro
 
     def atualizar(self, identificador, nome, email):
+        self._validar_id(identificador)
         nome, email = self._validar(nome, email)
         try:
             return self.repositorio.atualizar(identificador, nome, email)
@@ -37,5 +46,5 @@ class ServicoPessoas:
             raise ErroValidacao('Email ja cadastrado.') from erro
 
     def listar(self): return self.repositorio.listar()
-    def consultar(self, identificador): return self.repositorio.consultar(identificador)
-    def excluir(self, identificador): return self.repositorio.excluir(identificador)
+    def consultar(self, identificador): return self.repositorio.consultar(self._validar_id(identificador))
+    def excluir(self, identificador): return self.repositorio.excluir(self._validar_id(identificador))
