@@ -3,6 +3,8 @@ import sqlite3
 import re
 from aplicacao.repositorio import RepositorioPessoas
 
+_ID_MAXIMO_SQLITE = (1 << 63) - 1
+
 class ErroValidacao(ValueError):
     pass
 
@@ -13,8 +15,8 @@ class ServicoPessoas:
 
     @staticmethod
     def _validar_id(identificador):
-        if type(identificador) is not int or identificador <= 0:
-            raise ErroValidacao('Identificador deve ser um inteiro positivo.')
+        if type(identificador) is not int or not 1 <= identificador <= _ID_MAXIMO_SQLITE:
+            raise ErroValidacao(f'Identificador deve ser um inteiro entre 1 e {_ID_MAXIMO_SQLITE}.')
         return identificador
 
     @staticmethod

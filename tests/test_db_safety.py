@@ -1,4 +1,6 @@
 import sqlite3
+import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -24,6 +26,50 @@ class PersistenciaSegura(unittest.TestCase):
                     with self.assertRaises(ErroValidacao):
                         func()
         self.assertIsNotNone(self.servico.consultar(pk))
+
+    def test_identificador_acima_do_limite_do_sqlite(self):
+        identificador = 9223372036854775808
+        operacoes = (
+            (self.servico.consultar, (identificador,)),
+            (self.servico.atualizar, (identificador, 'Novo nome', 'novo@example.com')),
+            (self.servico.excluir, (identificador,)),
+        )
+        for operacao, argumentos in operacoes:
+            with self.subTest(operacao=operacao.__name__):
+                with self.assertRaises(ErroValidacao):
+                    operacao(*argumentos)
+
+    def test_maior_identificador_sqlite_pode_ser_consultado_atualizado_e_excluido(self):
+        identificador = 9223372036854775807
+        with self.repo._sessao() as conexao:
+            conexao.execute(
+                'INSERT INTO pessoas (id, nome, email) VALUES (?, ?, ?)',
+                (identificador, 'Pessoa Limite', 'limite@example.com'),
+            )
+
+        self.assertEqual('Pessoa Limite', self.servico.consultar(identificador)['nome'])
+        self.assertTrue(self.servico.atualizar(identificador, 'Nome Novo', 'novo@example.com'))
+        self.assertEqual('Nome Novo', self.servico.consultar(identificador)['nome'])
+        self.assertTrue(self.servico.excluir(identificador))
+        self.assertIsNone(self.servico.consultar(identificador))
+
+    def test_cli_retorna_erro_de_uso_para_identificador_acima_do_limite(self):
+        cli = Path(__file__).resolve().parents[1] / 'principal.py'
+        comandos = (
+            ('consultar', ()),
+            ('atualizar', ('--nome', 'Nome Novo', '--email', 'novo@example.com')),
+            ('excluir', ()),
+        )
+        for comando, opcoes in comandos:
+            with self.subTest(comando=comando):
+                resultado = subprocess.run(
+                    [sys.executable, '-X', 'utf8', str(cli), '--banco', ':memory:',
+                     comando, '9223372036854775808', *opcoes],
+                    capture_output=True, encoding='utf-8', timeout=10,
+                )
+                self.assertEqual(2, resultado.returncode, resultado.stderr)
+                self.assertIn('9223372036854775807', resultado.stderr)
+                self.assertNotIn('Traceback', resultado.stderr)
 
     def test_tipos_invalidos_produzem_erro_de_dominio(self):
         for nome, email in ((None, 'pessoa@example.com'),
