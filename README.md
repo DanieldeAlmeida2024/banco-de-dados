@@ -49,6 +49,8 @@ python -m unittest discover -s tests -v
 
 O serviço rejeita formatos malformados como dois arrobas, espaços, domínio sem ponto, labels de domínio inválidos e sequência `..`. A normalização para minúsculas e a restrição de unicidade SQLite permanecem. O laboratório valida **formato básico**, não a existência de caixa postal nem entregabilidade. Rode `python -m unittest discover -s tests -v`; o workflow de PR executa a mesma suíte.
 
-## Contratos de integridade de IDs e conexões (14/11/2026)
+## Contratos de integridade de IDs e conexões
 
-Identificadores devem ser `int` positivos, excluindo `bool` (em Python `True == 1` e SQLite vincularia ID 1 indevidamente). Tipos não textuais de nome/e-mail geram `ErroValidacao`. Em SQLite de arquivo cada transação fecha a conexão mesmo sob exceção; no modo `:memory:` a mesma instância preserva a conexão, liberável por `fechar()`. Testes em `tests/test_db_safety.py`, sem banco externo.
+Os comandos `consultar`, `atualizar` e `excluir` aceitam IDs inteiros de 1 a 9223372036854775807, o limite positivo do SQLite. O serviço rejeita `bool` e valores fora da faixa com `ErroValidacao`. No CLI, um ID fora da faixa exibe uma mensagem de uso e retorna código 2.
+
+Tipos não textuais de nome/e-mail geram `ErroValidacao`. Em SQLite de arquivo cada transação fecha a conexão mesmo sob exceção; no modo `:memory:` a mesma instância preserva a conexão, liberável por `fechar()`. Testes em `tests/test_db_safety.py`, sem banco externo.

@@ -1,6 +1,6 @@
 # Laboratório SQLite — especificação funcional
 
-> **Documento DB-ESTUDO-PROJ** | v1.0.0 | 2026-11-11 | Código `main` @ `388ff5f952d55b4511a186667b9f4f745076e013`
+> **Documento DB-ESTUDO-PROJ** | v2.0.0 | 2026-11-24 | [Controle de versões](../controle/VERSIONAMENTO.md)
 > Análise do código efetivo deste repositório; cenários “pendente” não representam testes executados.
 
 
@@ -15,7 +15,7 @@ Aplicação de linha de comando para cadastrar, listar, consultar, atualizar e e
 5. A CLI apresenta JSON em UTF-8; erros de validação são repassados ao `argparse`.
 
 ## Contrato de dados
-A tabela `pessoas` possui `id INTEGER PRIMARY KEY AUTOINCREMENT`, `nome TEXT NOT NULL CHECK(length(nome)>0)` e `email TEXT NOT NULL UNIQUE`. O serviço exige nome com 2–120 caracteres e e-mail com 3–254 caracteres contendo `@`. A verificação é propositalmente simples e **não comprova validade real de e-mails**.
+A tabela `pessoas` possui `id INTEGER PRIMARY KEY AUTOINCREMENT`, `nome TEXT NOT NULL CHECK(length(nome)>0)` e `email TEXT NOT NULL UNIQUE`. O serviço exige nome com 2–120 caracteres e e-mail com 6–254 caracteres, parte local não vazia e domínio com pelo menos um ponto. A validação verifica o formato e a unicidade no banco. A existência da caixa postal fica fora do contrato.
 
 | Comando | Entrada | Saída | Comportamento |
 |---|---|---|---|
@@ -24,6 +24,8 @@ A tabela `pessoas` possui `id INTEGER PRIMARY KEY AUTOINCREMENT`, `nome TEXT NOT
 | `consultar` | `id` | objeto ou `null` | Não encontrado não é exceção |
 | `atualizar` | `id`, `--nome`, `--email` | `{"atualizado": bool}` | Retorna falso quando ID não existe |
 | `excluir` | `id` | `{"excluido": bool}` | Retorna falso quando ID não existe |
+
+Para consultar, atualizar ou excluir, o serviço aceita somente IDs do tipo `int` entre 1 e 9223372036854775807, inclusive. Essa faixa corresponde aos valores positivos da chave inteira de 64 bits do SQLite. Valores fora da faixa são rejeitados antes da consulta ao repositório com `ErroValidacao`. O CLI apresenta a mensagem de uso com código 2. IDs válidos inexistentes mantêm os retornos `null` ou `false` da tabela.
 
 ## Exemplo reproduzível
 ```bash

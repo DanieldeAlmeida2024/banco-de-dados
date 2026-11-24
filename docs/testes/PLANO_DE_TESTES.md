@@ -1,6 +1,6 @@
 # Laboratório SQLite — plano de testes
 
-> **Documento DB-ESTUDO-TST** | v1.0.0 | 2026-11-11 | Código `main` @ `388ff5f952d55b4511a186667b9f4f745076e013`
+> **Documento DB-ESTUDO-TST** | v1.1.0 | 2026-11-24 | [Controle de versões](../controle/VERSIONAMENTO.md)
 > Análise do código efetivo deste repositório; cenários “pendente” não representam testes executados.
 
 
@@ -32,7 +32,7 @@ python -m compileall -q principal.py aplicacao tests
 ```
 
 ## Critério de aceite
-Os quatro testes existentes devem passar; para evolução funcional, acrescentar testes dos limites e da persistência entre execuções. Não considerar validação simples de e-mail como verificação de propriedade do endereço. Evidência precisa registrar commit, comando e retorno da suíte.
+A suíte existente e os testes de regressão pertinentes devem passar. Não considerar validação simples de e-mail como verificação de propriedade do endereço. Evidência precisa registrar commit, comando e retorno da suíte.
 
 ## DB-T12–15 — regressões integradas (14/11/2026)
 
@@ -42,3 +42,13 @@ Os quatro testes existentes devem passar; para evolução funcional, acrescentar
 - DB-T15: SQLite em memória mantém dados entre operações da mesma instância até `fechar()`.
 
 Executáveis em `tests/test_db_safety.py`. O escopo não inclui teste de concorrência multi-processo ou operação de produção.
+
+## DB-T16–18 — limites do identificador SQLite
+
+| ID | Caso | Aceitação |
+|---|---|---|
+| DB-T16 | Consultar, atualizar e excluir com ID 9223372036854775808 | O serviço retorna `ErroValidacao` nas três operações |
+| DB-T17 | Consultar, atualizar e excluir um registro com ID 9223372036854775807 | As três operações funcionam e a consulta final retorna `None` |
+| DB-T18 | Executar os três comandos do CLI com ID 9223372036854775808 | Código 2 e mensagem com o limite aceito, sem traceback |
+
+Os casos estão em `tests/test_db_safety.py` e usam banco temporário ou em memória.
